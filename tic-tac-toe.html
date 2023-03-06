@@ -3,8 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <title>[Bài tập] Tic tac toe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <style>
+        #container {
+            display: grid;
+            grid-template-columns: repeat(10,50px);
+            grid-template-rows: repeat(10,50px);
+        }
+        .item {
+            border: 1px black solid;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-
+<div id="container">
+</div>
+<p id="result"></p>
 </body>
+<script>
+    function check_win_by_row(row,col, arr) {
+        if (arr[row][col] == undefined)
+            return false;
+        switch (row) {
+            case 0:
+                if (arr[row][col] == arr[row+1][col] && arr[row+1][col] == arr[row+2][col]) {
+                    return true;
+                }
+                break;
+            case 1:
+                if ((arr[row-1][col] == arr[row][col] && arr[row][col] == arr[row+1][col]) ||
+                    (arr[row][col] == arr[row+1][col] && arr[row+1][col] == arr[row+2][col])) {
+                    return true;
+                }
+                break;
+            case 8:
+                if ((arr[row-2][col] == arr[row-1][col] && arr[row-1][col] == arr[row][col]) ||
+                    (arr[row-1][col] == arr[row][col] && arr[row][col] == arr[row+1][col])) {
+                    return true;
+                }
+                break;
+            case 9:
+                if (arr[row-2][col] == arr[row-1][col] && arr[row-1][col] == arr[row][col]) {
+                    return true;
+                }
+                break;
+            default:
+                for (let i = row -2; i < row + 2; i++) {
+                    if ((arr[row-2][col] == arr[row-1][col] && arr[row-1][col] == arr[row][col]) ||
+                        (arr[row-1][col] == arr[row][col] && arr[row][col] == arr[row+1][col]) ||
+                        (arr[row][col] == arr[row+1][col] && arr[row+1][col] == arr[row+2][col])) {
+                        return true;
+                    }
+                }
+                break;
+        }
+        return false;
+    }
+
+    function check_win_by_col(row,col, arr) {
+        if (arr[row][col] == undefined)
+            return false;
+        switch (col) {
+            case 0:
+                if (arr[row][col] == arr[row][col+1] && arr[row][col+1] == arr[row][col+2]) {
+                    return true;
+                }
+                break;
+            case 1:
+                if ((arr[row][col-1] == arr[row][col] && arr[row][col] == arr[row][col+1]) ||
+                    (arr[row][col] == arr[row][col+1] && arr[row][col+1] == arr[row][col+2])) {
+                    return true;
+                }
+                break;
+            case 8:
+                if ((arr[row][col-2] == arr[row][col-1] && arr[row][col-1] == arr[row][col]) ||
+                    (arr[row][col-1] == arr[row][col] && arr[row][col] == arr[row][col+1])) {
+                    return true;
+                }
+                break;
+            case 9:
+                if (arr[row][col-2] == arr[row][col-1] && arr[row][col-1] == arr[row][col]) {
+                    return true;
+                }
+                break;
+            default:
+                for (let i = col -2; i < col + 2; i++) {
+                    if ((arr[row][col-2] == arr[row][col-1] && arr[row][col-1] == arr[row][col]) ||
+                        (arr[row][col-1] == arr[row][col] && arr[row][col] == arr[row][col+1]) ||
+                        (arr[row][col] == arr[row][col+1] && arr[row][col+1] == arr[row][col+2])) {
+                        return true;
+                    }
+                }
+                break;
+        }
+        return false;
+    }
+    $(document).ready(function () {
+        //Create array to save map
+        let chessMap = new Array(10);
+        for (let i = 0; i < 10; i ++) {
+            chessMap[i] = new Array(10);
+            for (let j = 0; j < 10; j++)
+                $("#container").append("<div class=item></div>")
+        }
+        // console.log(chessMap)
+
+        //
+        let redTurn = true;
+        let row = 0;
+        let col = 0;
+        let stop = false;
+        $(".item").click(function (event) {
+            if (stop) {
+                let yes = confirm("Bạn có muốn bắt đầu lại?")
+                if (yes == true) {
+                    location.reload()
+                    return;
+                } else {
+                    return;
+                }
+
+            }
+            event.stopPropagation();
+            let css = $(this).css('background-color');
+            let index = $(this).index();
+            row = parseInt(index / 10);
+            col = index % 10;
+            if (css != 'rgb(255, 0, 0)' && css != 'rgb(0, 0, 255)'){
+                if (redTurn) {
+                    $(this).css('background-color','red');
+                    chessMap[row][col] = 'red';
+                    redTurn = !redTurn;
+                    if (check_win_by_row(row, col, chessMap) || check_win_by_col(row, col, chessMap)) {
+                        $("#result").html('Đỏ thắng');
+                        stop = true;
+                    }
+                } else {
+                    $(this).css('background-color','blue');
+                    chessMap[row][col] = 'blue';
+                    redTurn = !redTurn;
+                    if (check_win_by_row(row, col, chessMap) || check_win_by_col(row, col, chessMap)) {
+                        $("#result").html('Xanh thắng');
+                        stop = true;
+                    }
+                }
+            }
+
+        });
+    })
+</script>
 </html>
